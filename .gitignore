@@ -1,0 +1,54 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Angular build output
+dist/
+out-tsc/
+
+# IDEs e arquivos temporários
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Sistema operacional
+*.log
+*.tmp
+*.lock
+
+# Arquivos de configuração pessoais
+.env
+*.local
+
+# Dependências do Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VSCode
+.vscode/
+
+# Outros arquivos temporários
+*.log
+*.tmp
+
+# Docker
+docker-compose.override.yml
