@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  # Serviço para gerar certificado SSL
+  certs:
+    image: alpine
+    container_name: generate_certs
+    command: >
+      /bin/sh -c "
+      apk add openssl &&
+      mkdir -p /etc/ssl/private &&
+      mkdir -p /etc/ssl/certs &&
+      openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/nginx-selfsigned.key \
+      -out /etc/ssl/certs/nginx-selfsigned.crt \
+      -subj '/C=US/ST=State/L=City/O=MyCompany/OU=IT/CN=localhost'
+      "
+    volumes:
+      - ./nginx/certs:/etc/ssl/private
+      - ./nginx/certs:/etc/ssl/certs
+    networks:
+      - app-network
+
   # Banco de dados MySQL
   db:
     image: mysql:8.0
@@ -23,24 +43,35 @@ services:
     container_name: spring_boot_backend
     ports:
       - "8080:8080"
+    volumes:
+      - ./nginx/certs:/etc/ssl/private
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/librarydb
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: userpassword
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Configuração SSL no Spring Boot
+      server.ssl.key-store: /etc/ssl/private/keystore.p12
+      server.ssl.key-store-password: yourpassword
+      server.ssl.keyAlias: selfsigned
     depends_on:
       - db
+      - certs
     networks:
       - app-network
 
-  # Front-end Angular
+  # Front-end Angular com NGINX
   frontend:
     build: ./frontend_angular
     container_name: angular_frontend
     ports:
-      - "4200:80"
+      - "443:443"
+    volumes:
+      - ./nginx/certs:/etc/ssl/private
+      - ./nginx/certs:/etc/ssl/certs
     depends_on:
       - backend
+      - certs
     networks:
       - app-network
 
